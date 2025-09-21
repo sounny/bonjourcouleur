@@ -3,82 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bonjour Couleur</title>
+    <title>Bonjour Couleur 3.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <h1>Bonjour Couleur 2.0</h1>
+    <div class="gradient-backdrop" aria-hidden="true"></div>
+    <main class="app" aria-live="polite">
+        <header class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">🎨</span>
+                <div>
+                    <h1>Bonjour Couleur <span class="version">3.0</span></h1>
+                    <p class="tagline">Une aventure pour apprendre les couleurs en français</p>
+                </div>
+            </div>
+            <nav class="quick-actions">
+                <button id="music-toggle" class="icon-button" aria-pressed="true" aria-label="Activer ou couper la musique">🎵</button>
+                <button id="sound-toggle" class="icon-button" aria-pressed="true" aria-label="Activer ou couper les effets sonores">🔔</button>
+                <button id="voice-toggle" class="icon-button" aria-pressed="true" aria-label="Activer ou couper la voix française">🗣️</button>
+                <button id="sticker-button" class="pill">Album d'autocollants</button>
+            </nav>
         </header>
 
-        <main>
-            <section id="name-screen" class="screen active" aria-label="Name Entry">
-                <p>Quel est ton nom ? (What is your name?)</p>
-                <input type="text" id="name-input" placeholder="Ton nom" aria-label="Ton nom">
-                <button id="start-button">Commencer (Start)</button>
-            </section>
-
-            <section id="intro-screen" class="screen" aria-label="Introduction">
-                <div class="intro-character-container">
-                    <div class="speech-bubble" id="intro-bubble"></div>
-                    <div class="pixel-char" aria-hidden="true"></div>
+        <section id="home-screen" class="screen active">
+            <div class="hero">
+                <div class="mascot" aria-hidden="true">
+                    <div class="mascot-body"></div>
+                    <div class="mascot-brush"></div>
                 </div>
-            </section>
-
-            <section id="level-select-screen" class="screen" aria-label="Level Selection">
-                <h2>Choisis un niveau</h2>
-                <p id="player-greeting"></p>
-                <div id="level-grid" class="level-grid" role="list"></div>
-            </section>
-
-            <section id="game-screen" class="screen" aria-live="polite">
-                <div id="game-header" class="game-header">
-                    <button id="back-to-levels" class="ghost-button" aria-label="Retour aux niveaux">←</button>
-                    <div>
-                        <span id="level-display">Niveau 1</span>
-                        <span id="timer-display" class="timer hidden"></span>
+                <div class="hero-copy">
+                    <h2>Salut, artiste !</h2>
+                    <p>Pars à l'aventure avec Camy le caméléon et découvre les couleurs en français grâce à des jeux sonores, des défis mémoire et même un atelier créatif.</p>
+                    <label class="name-entry" for="player-name">Comment t'appelles-tu ?</label>
+                    <div class="name-form">
+                        <input id="player-name" type="text" maxlength="12" placeholder="Ton prénom">
+                        <button id="start-adventure" class="primary">En route !</button>
                     </div>
-                    <div class="score-panel">
-                        <span id="score-display">Score : 0</span>
-                        <button id="settings-button" class="ghost-button" aria-expanded="false" aria-controls="settings-panel">⚙️</button>
-                    </div>
+                    <button id="tour-button" class="ghost">Découvrir les activités</button>
                 </div>
+            </div>
+        </section>
 
-                <div id="instructions" class="instructions"></div>
-                <div id="color-prompt" class="color-prompt" role="status"></div>
-                <button id="listen-button" class="primary" type="button">Écouter 🔊</button>
+        <section id="map-screen" class="screen" aria-label="Carte des aventures">
+            <div class="map-intro">
+                <h2>Carte des Couleurs</h2>
+                <p id="map-greeting"></p>
+            </div>
+            <div class="map-grid" role="list">
+                <!-- Map tiles injected here -->
+            </div>
+            <footer class="map-footer">
+                <button id="back-home" class="ghost">Accueil</button>
+                <button id="open-challenge" class="pill">Défi minute</button>
+                <button id="open-practice" class="pill">Studio de prononciation</button>
+            </footer>
+        </section>
 
-                <div id="color-grid" class="color-grid" role="list"></div>
-                <div id="memory-controls" class="memory-controls hidden">
-                    <button id="replay-sequence" class="primary" type="button">Rejouer la séquence 🔁</button>
+        <section id="game-screen" class="screen" aria-live="polite">
+            <div class="game-header">
+                <button class="ghost" id="back-to-map" aria-label="Retour à la carte">← Carte</button>
+                <div class="game-title">
+                    <h2 id="game-title">Forêt Écoute</h2>
+                    <p id="game-subtitle" class="subtitle"></p>
                 </div>
-            </section>
-
-            <section id="level-complete-screen" class="screen" aria-label="Level Complete">
-                <h2 id="level-complete-title"></h2>
-                <div id="star-container" class="stars" aria-label="Score en étoiles"></div>
-                <p id="level-stats"></p>
-                <div class="level-complete-actions">
-                    <button id="next-level-button" class="primary">Niveau suivant</button>
-                    <button id="replay-level-button" class="ghost-button">Rejouer</button>
-                    <button id="back-to-map-button" class="ghost-button">Retour aux niveaux</button>
+                <div class="game-stats">
+                    <div class="stat-pill" id="timer" aria-live="polite">⏱️ 60</div>
+                    <div class="stat-pill" id="score">⭐ 0</div>
                 </div>
-            </section>
-        </main>
+            </div>
+            <div id="instructions" class="instructions"></div>
+            <div id="game-area" class="game-area"></div>
+            <div id="game-controls" class="game-controls"></div>
+        </section>
 
-        <aside id="settings-panel" class="settings hidden" aria-hidden="true">
-            <h2>Paramètres</h2>
-            <label class="toggle">
-                <input type="checkbox" id="speech-toggle" checked>
-                <span>Voix en français</span>
-            </label>
-            <p class="settings-hint">Les sons utilisent la synthèse vocale de ton navigateur.</p>
-            <button id="close-settings" class="ghost-button">Fermer</button>
-        </aside>
-    </div>
+        <section id="challenge-screen" class="screen" aria-live="polite">
+            <div class="game-header">
+                <button class="ghost" id="exit-challenge">← Retour</button>
+                <div class="game-title">
+                    <h2>Défi minute</h2>
+                    <p class="subtitle">Réponds correctement à un maximum de couleurs en 60 secondes.</p>
+                </div>
+                <div class="game-stats">
+                    <div class="stat-pill" id="challenge-timer">⏱️ 60</div>
+                    <div class="stat-pill" id="challenge-score">🎯 0</div>
+                </div>
+            </div>
+            <div id="challenge-area" class="game-area"></div>
+            <div id="challenge-controls" class="game-controls"></div>
+        </section>
 
-    <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+        <section id="creative-screen" class="screen" aria-label="Atelier créatif">
+            <div class="game-header">
+                <button class="ghost" id="exit-creative">← Retour</button>
+                <div class="game-title">
+                    <h2>Atelier de Camy</h2>
+                    <p class="subtitle">Choisis une couleur et donne vie à la scène.</p>
+                </div>
+                <div class="game-stats">
+                    <div class="stat-pill" id="creative-color">🎨 ?</div>
+                </div>
+            </div>
+            <div class="creative-wrapper">
+                <div class="palette" id="creative-palette" role="list"></div>
+                <div class="canvas-wrapper">
+                    <svg id="creative-canvas" viewBox="0 0 300 200" role="img" aria-label="Une scène avec un soleil, un arbre et une maison">
+                        <rect class="canvas-bg" x="0" y="0" width="300" height="200" fill="#f1f5f9"></rect>
+                        <circle data-area="sun" cx="250" cy="45" r="25" fill="#fde68a"></circle>
+                        <rect data-area="house" x="60" y="90" width="80" height="60" rx="6" fill="#f8fafc"></rect>
+                        <polygon data-area="roof" points="55,90 100,50 145,90" fill="#cbd5f5"></polygon>
+                        <rect data-area="door" x="95" y="120" width="20" height="30" rx="4" fill="#e2e8f0"></rect>
+                        <circle data-area="tree-top" cx="210" cy="90" r="35" fill="#d1fae5"></circle>
+                        <rect data-area="tree-trunk" x="200" y="110" width="20" height="40" rx="4" fill="#cbd5f5"></rect>
+                        <rect data-area="ground" x="0" y="150" width="300" height="50" fill="#bbf7d0"></rect>
+                    </svg>
+                </div>
+                <aside class="creative-tips" id="creative-tips"></aside>
+            </div>
+        </section>
+
+        <section id="practice-screen" class="screen" aria-label="Studio de prononciation">
+            <div class="game-header">
+                <button class="ghost" id="exit-practice">← Retour</button>
+                <div class="game-title">
+                    <h2>Studio de prononciation</h2>
+                    <p class="subtitle">Dis la couleur et vois si Camy comprend !</p>
+                </div>
+                <div class="game-stats">
+                    <div class="stat-pill" id="practice-result">🎤 ...</div>
+                </div>
+            </div>
+            <div class="practice-wrapper">
+                <div class="practice-prompt" id="practice-prompt"></div>
+                <button id="practice-next" class="primary">Nouvelle couleur</button>
+                <button id="practice-record" class="pill">🎙️ Parler</button>
+                <p class="practice-note">Le micro est optionnel. Tu peux aussi répéter la couleur à voix haute sans appuyer sur le bouton.</p>
+            </div>
+        </section>
+
+        <section id="sticker-screen" class="screen" aria-label="Album d'autocollants">
+            <div class="game-header">
+                <button class="ghost" id="close-stickers">← Retour</button>
+                <div class="game-title">
+                    <h2>Album d'autocollants</h2>
+                    <p class="subtitle">Gagne des stickers en terminant des aventures.</p>
+                </div>
+            </div>
+            <div id="sticker-collection" class="sticker-collection"></div>
+        </section>
+
+        <dialog id="reward-dialog" class="reward-dialog">
+            <div class="reward-content">
+                <h2>Bravo !</h2>
+                <p id="reward-text"></p>
+                <div id="reward-sticker" class="reward-sticker" aria-hidden="true"></div>
+                <button id="reward-close" class="primary">Continuer</button>
+            </div>
+        </dialog>
+
+        <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+    </main>
 
     <script src="script.js" defer></script>
 </body>

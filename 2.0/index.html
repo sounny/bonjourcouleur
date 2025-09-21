@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonjour Couleur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Bonjour Couleur 2.0</h1>
+        </header>
+
+        <main>
+            <section id="name-screen" class="screen active" aria-label="Name Entry">
+                <p>Quel est ton nom ? (What is your name?)</p>
+                <input type="text" id="name-input" placeholder="Ton nom" aria-label="Ton nom">
+                <button id="start-button">Commencer (Start)</button>
+            </section>
+
+            <section id="intro-screen" class="screen" aria-label="Introduction">
+                <div class="intro-character-container">
+                    <div class="speech-bubble" id="intro-bubble"></div>
+                    <div class="pixel-char" aria-hidden="true"></div>
+                </div>
+            </section>
+
+            <section id="level-select-screen" class="screen" aria-label="Level Selection">
+                <h2>Choisis un niveau</h2>
+                <p id="player-greeting"></p>
+                <div id="level-grid" class="level-grid" role="list"></div>
+            </section>
+
+            <section id="game-screen" class="screen" aria-live="polite">
+                <div id="game-header" class="game-header">
+                    <button id="back-to-levels" class="ghost-button" aria-label="Retour aux niveaux">←</button>
+                    <div>
+                        <span id="level-display">Niveau 1</span>
+                        <span id="timer-display" class="timer hidden"></span>
+                    </div>
+                    <div class="score-panel">
+                        <span id="score-display">Score : 0</span>
+                        <button id="settings-button" class="ghost-button" aria-expanded="false" aria-controls="settings-panel">⚙️</button>
+                    </div>
+                </div>
+
+                <div id="instructions" class="instructions"></div>
+                <div id="color-prompt" class="color-prompt" role="status"></div>
+                <button id="listen-button" class="primary" type="button">Écouter 🔊</button>
+
+                <div id="color-grid" class="color-grid" role="list"></div>
+                <div id="memory-controls" class="memory-controls hidden">
+                    <button id="replay-sequence" class="primary" type="button">Rejouer la séquence 🔁</button>
+                </div>
+            </section>
+
+            <section id="level-complete-screen" class="screen" aria-label="Level Complete">
+                <h2 id="level-complete-title"></h2>
+                <div id="star-container" class="stars" aria-label="Score en étoiles"></div>
+                <p id="level-stats"></p>
+                <div class="level-complete-actions">
+                    <button id="next-level-button" class="primary">Niveau suivant</button>
+                    <button id="replay-level-button" class="ghost-button">Rejouer</button>
+                    <button id="back-to-map-button" class="ghost-button">Retour aux niveaux</button>
+                </div>
+            </section>
+        </main>
+
+        <aside id="settings-panel" class="settings hidden" aria-hidden="true">
+            <h2>Paramètres</h2>
+            <label class="toggle">
+                <input type="checkbox" id="speech-toggle" checked>
+                <span>Voix en français</span>
+            </label>
+            <p class="settings-hint">Les sons utilisent la synthèse vocale de ton navigateur.</p>
+            <button id="close-settings" class="ghost-button">Fermer</button>
+        </aside>
+    </div>
+
+    <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
