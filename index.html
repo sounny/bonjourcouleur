@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonjour Couleur</title>
+    <style>
+        /* General Styles - Mobile First */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none; /* Hide all screens by default */
+        }
+        .screen.active {
+            display: block; /* Show only the active screen */
+        }
+
+        /* Input and Buttons */
+        h1 {
+            color: #2c3e50;
+        }
+        input[type="text"] {
+            width: calc(100% - 2rem);
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Intro Screen Character and Bubble */
+        .intro-character-container {
+            position: relative;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 120px;
+        }
+        .pixel-char {
+            width: 50px;
+            height: 70px;
+            background: #d9534f; /* Red body */
+            position: relative;
+            box-shadow: 
+                /* Hat */
+                0px -10px 0 0 #d9534f, 10px -10px 0 0 #d9534f, -10px -10px 0 0 #d9534f,
+                /* Face */
+                0px 0px 0 0 #f0ad4e,
+                /* Eyes */
+                -5px -5px 0 0 #fff, 5px -5px 0 0 #fff,
+                -5px -5px 0 1px #000, 5px -5px 0 1px #000,
+                /* Body */
+                -10px 10px 0 0 #337ab7, 10px 10px 0 0 #337ab7,
+                -10px 20px 0 0 #337ab7, 10px 20px 0 0 #337ab7;
+        }
+        .speech-bubble {
+            position: absolute;
+            background: #ecf0f1;
+            border-radius: 10px;
+            padding: 1rem;
+            font-size: 1.2rem;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: #ecf0f1 transparent transparent transparent;
+        }
+
+        /* Game Screen Styles */
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+        #color-prompt {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .color-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .color-box {
+            height: 100px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 4px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .color-box:hover {
+            transform: scale(1.05);
+        }
+        .color-box.correct {
+            border-color: #2ecc71;
+        }
+        .color-box.incorrect {
+            border-color: #e74c3c;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div id="name-screen" class="screen active">
+            <h1>Bonjour !</h1>
+            <p>Quel est ton nom ? (What is your name?)</p>
+            <input type="text" id="name-input" placeholder="Your Name">
+            <button onclick="startGame()">Commencer (Start)</button>
+        </div>
+
+        <div id="intro-screen" class="screen">
+            <div class="intro-character-container">
+                <div class="speech-bubble" id="intro-bubble"></div>
+                <div class="pixel-char"></div>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div id="game-header">
+                <span id="level-display">Level: 1</span>
+                <span id="score-display">Score: 0</span>
+            </div>
+            <p>Écoute la couleur et touche la bonne case.</p>
+            <p>(Listen to the color and touch the right box.)</p>
+            <button onclick="playPrompt()">Écouter (Listen) 🔊</button>
+            <div class="color-grid" id="color-grid">
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Global State ---
+        let playerName = '';
+        let currentLevel = 1;
+        let score = 0;
+        let currentCorrectColor = '';
+
+        // List of colors from the teacher's note
+        const colors = {
+            'rouge': '#e74c3c',
+            'bleu': '#3498db',
+            'vert': '#2ecc71',
+            'orange': '#e67e22',
+            'rose': '#ff79c6',
+            'jaune': '#f1c40f',
+            'marron': '#8d6e63',
+            'noir': '#2c3e50'
+        };
+        const colorNames = Object.keys(colors);
+
+        // --- Screen Management ---
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // --- Game Start ---
+        function startGame() {
+            playerName = document.getElementById('name-input').value;
+            if (playerName.trim() === '') {
+                alert('S\'il te plaît, entre ton nom ! (Please enter your name!)');
+                return;
+            }
+            
+            // Show intro screen
+            document.getElementById('intro-bubble').textContent = `Allons-y, ${playerName} ! (Let's go!)`;
+            showScreen('intro-screen');
+
+            // After a short delay, move to the game screen
+            setTimeout(() => {
+                showScreen('game-screen');
+                setupLevel(currentLevel);
+            }, 2500); // 2.5 second delay
+        }
+        
+        // --- Level Setup ---
+        // This is a simple plan for 10 levels. We will only build Level 1 for now.
+        // Levels 1-2: Listen & Match 2 colors
+        // Levels 3-4: Listen & Match 4 colors
+        // Levels 5-6: Read & Match 4 colors
+        // Levels 7-8: Listen & Match word from 4 text choices
+        // Levels 9-10: Memory Game (sequence of colors)
+        function setupLevel(level) {
+            document.getElementById('level-display').textContent = `Level: ${level}`;
+            const grid = document.getElementById('color-grid');
+            grid.innerHTML = ''; // Clear previous boxes
+
+            let options = [];
+            let numOptions = 2; // For level 1, we start with 2 choices
+
+            // Get a random selection of unique colors
+            let availableColors = [...colorNames];
+            for (let i = 0; i < numOptions; i++) {
+                const randomIndex = Math.floor(Math.random() * availableColors.length);
+                options.push(availableColors.splice(randomIndex, 1)[0]);
+            }
+            
+            // Choose one of the options to be the correct answer
+            currentCorrectColor = options[Math.floor(Math.random() * options.length)];
+
+            // Create the color boxes on the screen
+            options.forEach(colorName => {
+                const colorBox = document.createElement('div');
+                colorBox.classList.add('color-box');
+                colorBox.style.backgroundColor = colors[colorName];
+                colorBox.dataset.color = colorName;
+                colorBox.addEventListener('click', handleColorChoice);
+                grid.appendChild(colorBox);
+            });
+
+            // Announce the color to find
+            setTimeout(playPrompt, 500);
+        }
+
+        // --- Audio Prompt ---
+        function playPrompt() {
+            // Use the browser's speech synthesis to say the word in French
+            const utterance = new SpeechSynthesisUtterance(currentCorrectColor);
+            utterance.lang = 'fr-FR';
+            speechSynthesis.speak(utterance);
+        }
+
+        // --- Handle Player's Choice ---
+        function handleColorChoice(event) {
+            const chosenColor = event.target.dataset.color;
+            
+            if (chosenColor === currentCorrectColor) {
+                // Correct!
+                score += 10;
+                event.target.classList.add('correct');
+                // Go to the next level/challenge after a short delay
+                setTimeout(() => {
+                    // For now, we just restart the same level for demonstration
+                    // In a full game, you would do currentLevel++
+                    setupLevel(currentLevel);
+                }, 1000);
+            } else {
+                // Incorrect
+                event.target.classList.add('incorrect');
+                // Remove the 'incorrect' style after a moment
+                setTimeout(() => {
+                    event.target.classList.remove('incorrect');
+                }, 1000);
+            }
+            
+            // Update the score display
+            document.getElementById('score-display').textContent = `Score: ${score}`;
+        }
+    </script>
+
+</body>
+</html>
