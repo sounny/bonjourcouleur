@@ -89,6 +89,51 @@ const DEFAULT_STATE = {
   }, {})
 };
 
+let preferredFrenchVoice = null;
+
+function updatePreferredFrenchVoice() {
+  if (!window.speechSynthesis) return;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return;
+
+  const normalize = (value) => (value || '').toLowerCase();
+  const frenchVoices = voices.filter((voice) => {
+    const lang = normalize(voice.lang);
+    return lang.startsWith('fr');
+  });
+
+  if (frenchVoices.length) {
+    const exact = frenchVoices.find((voice) => {
+      const lang = normalize(voice.lang);
+      return lang === 'fr-fr' || lang === 'fr_fr';
+    });
+    preferredFrenchVoice = exact || frenchVoices[0];
+    return;
+  }
+
+  const namedFrench = voices.find((voice) => /fran|french/i.test(voice.name));
+  if (namedFrench) {
+    preferredFrenchVoice = namedFrench;
+  }
+}
+
+function ensurePreferredFrenchVoice() {
+  if (!window.speechSynthesis) return null;
+  if (!preferredFrenchVoice) {
+    updatePreferredFrenchVoice();
+  }
+  return preferredFrenchVoice;
+}
+
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  const handleVoicesChanged = () => updatePreferredFrenchVoice();
+  if (typeof window.speechSynthesis.addEventListener === 'function') {
+    window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+  }
+  window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
+  updatePreferredFrenchVoice();
+}
+
 class SoundManager {
   constructor() {
     this.context = null;
@@ -897,7 +942,13 @@ function stopPracticeRecognition() {
 function speakColor(color) {
   if (!appState.settings.voice || !window.speechSynthesis) return;
   const utterance = new SpeechSynthesisUtterance(color.name);
-  utterance.lang = 'fr-FR';
+  const voice = ensurePreferredFrenchVoice();
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = 'fr-FR';
+  }
   utterance.rate = 0.95;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
@@ -906,7 +957,13 @@ function speakColor(color) {
 function speakInstruction(text) {
   if (!appState.settings.voice || !window.speechSynthesis) return;
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'fr-FR';
+  const voice = ensurePreferredFrenchVoice();
+  if (voice) {
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = 'fr-FR';
+  }
   utterance.rate = 0.95;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);

@@ -101,6 +101,51 @@ const GameState = {
 
 const elements = {};
 
+let preferredFrenchVoice = null;
+
+function updatePreferredFrenchVoice() {
+    if (!('speechSynthesis' in window)) {
+        return;
+    }
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) {
+        return;
+    }
+    const normalize = (value) => (value || '').toLowerCase();
+    const frenchVoices = voices.filter((voice) => normalize(voice.lang).startsWith('fr'));
+    if (frenchVoices.length) {
+        const exact = frenchVoices.find((voice) => {
+            const lang = normalize(voice.lang);
+            return lang === 'fr-fr' || lang === 'fr_fr';
+        });
+        preferredFrenchVoice = exact || frenchVoices[0];
+        return;
+    }
+    const namedFrench = voices.find((voice) => /fran|french/i.test(voice.name));
+    if (namedFrench) {
+        preferredFrenchVoice = namedFrench;
+    }
+}
+
+function ensurePreferredFrenchVoice() {
+    if (!('speechSynthesis' in window)) {
+        return null;
+    }
+    if (!preferredFrenchVoice) {
+        updatePreferredFrenchVoice();
+    }
+    return preferredFrenchVoice;
+}
+
+if ('speechSynthesis' in window) {
+    const handleVoicesChanged = () => updatePreferredFrenchVoice();
+    if (typeof window.speechSynthesis.addEventListener === 'function') {
+        window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+    }
+    window.speechSynthesis.onvoiceschanged = handleVoicesChanged;
+    updatePreferredFrenchVoice();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     cacheElements();
     attachEventListeners();
@@ -428,7 +473,13 @@ function speak(word) {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'fr-FR';
+    const voice = ensurePreferredFrenchVoice();
+    if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang;
+    } else {
+        utterance.lang = 'fr-FR';
+    }
     window.speechSynthesis.speak(utterance);
 }
 
